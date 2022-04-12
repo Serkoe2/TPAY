@@ -6,7 +6,7 @@ class TinkoffApi:
     url = "https://securepay.tinkoff.ru/v2/"
     TerminalKey = "TinkoffBankTest"
     TerminalPassword = "TinkoffBankTest"
-    NotificationURL = os.getenviron("NOTIFY_URL") if os.getenviron("NOTIFY_URL") else "http://localhost"
+    NotificationURL = os.environ.get("NOTIFY_URL") if os.environ.get("NOTIFY_URL") else "http://localhost"
 
     @classmethod
     def init(cls, data):
