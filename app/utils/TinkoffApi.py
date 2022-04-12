@@ -12,8 +12,8 @@ class TinkoffApi:
     def init(cls, data):
         __method__ = "Init"
         data["TerminalKey"] =  cls.TerminalKey
-        data["NotificationURL"] = cls.NotificationURL + "/order/handle"
-        data["SuccessURL"] = SiteURL
+        data["NotificationURL"] = cls.SiteURL + "/order/handle"
+        data["SuccessURL"] = cls.SiteURL
         r = requests.post(cls.url + __method__, json=data)
         if (r.status_code != 200):
             return False
