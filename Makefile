@@ -10,4 +10,7 @@ start_db:
 	-v "$(PWD)/postgresdata":/var/lib/postgresql/data \
 	postgres 
 
-.PHONY: start start_db
+freeze:
+	pip freeze > requirements.txt 
+
+.PHONY: start start_db freeze
