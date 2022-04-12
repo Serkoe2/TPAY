@@ -71,5 +71,8 @@ class TinkoffApi:
     @classmethod
     def compareToken(cls, data) -> bool:
         token = data.pop("Token")
+        for i in ["Data","Shops", "Receipt", "DATA"]:
+            if i in data:
+                data.pop(i)
         data["Success"] = 'true' if data["Success"] else 'false'
         return token == cls.getToken(data)
