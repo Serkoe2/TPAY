@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <meta charset="utf-8">
+<style>
+body{
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+.wrapper{
+    width: 100%;
+    padding-top: 5rem;
+    background-color: white;
+    overflow: scroll;
+}
+.tinkoffPayWidget{
+    width: 50%;
+    min-width: 25rem;
+    max-width: 40rem;
+    margin: 0 auto;
+    }
+.tinkoffPayForm{
+    padding: 1rem 0.5rem;
+    background-color: white;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+.tinkoffPayRow {
+    font-family: 'Helvetica Neue',sans-serif;
+    box-sizing: border-box;
+    transition: 0.3s;
+    border: 1px solid #ecf1f7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 5px;
+    outline: none;
+    background-color: #ecf1f7;
+    resize: none;
+    color: rgba(0, 0, 0, 0.664);
+    font-size: 15px;
+}
+.tinkoffPayRow:focus{
+    background-color: white;
+    border: 1px solid #616871;
+    border-radius: 4px;
+}
+.payBtn{
+    width: 80%;
+    border-radius: 5px;
+    transition: 0.4s;
+    margin: 10px auto;
+    border: 0;
+    text-transform: uppercase;
+    background-color: #ffdd2d;
+    padding: 15px;
+    cursor: pointer;
+}
+.payBtn:hover{
+    background-color: #fcc521;
+}
+.orders{
+    box-sizing: border-box;
+    margin-top: 7rem;
+    display: flex;
+    flex-direction: column;
+    background-color: #ecf1f7;
+    width: 100%;
+    min-height: 50vh;
+    padding: 1rem 1.5rem;
+
+}
+.order{
+    box-sizing: inherit;
+    display: inherit;
+    justify-content: space-around;
+    border: 1px solid black;
+    height: 3rem;
+}
+.order div{
+    width: 100%;
+    text-align: center;
+    padding-top: 0.7rem;
+    font-size: 0.8rem;
+}
+.order .button{
+    background-color: #ffdd2d;
+    transition-duration: 0.7s;
+}  
+.order .button:hover{
+    background-color: #fcc521;
+    transition-duration: 0.7s;
+    cursor: pointer;
+}    
+
+</style>
+</head>
+
+<div class="wrapper">
+<div class="tinkoffPayWidget">
+    <form class="tinkoffPayForm" name="TinkoffPayForm" onsubmit="tinkoffPay(this);">
+    <input class="tinkoffPayRow" type="text" placeholder="Введите сумму" name="amount" required>
+    <input class="tinkoffPayRow" type="email" placeholder="E-mail" name="email" required>
+    <input class="tinkoffPayRow payBtn" type="submit" value="Оплатить">
+    <span><input type="checkbox" name="policy" required> Ознакомлен с политикой конфеденциальности </span>
+    </form>
+</div>
+
+
+<div class="orders">
+    <div class="order">
+        <div name="number">Номер заказа</div>
+        <div name="email">email</div>
+        <div name="url">url</div>
+        <div name="created">Дата создания</div>
+        <div name="updated">Дата обновления</div>
+        <div name="status">Статус</div>
+        <div name="action" class="button">Кнопка</div>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+const STATUS = ["NEW", "FORM_SHOWED", "AUTHORIZED", "CONFIRMED", "REFUNDED"]
+const NAMES = {
+    "NEW": "Проверить статус",
+    "FORM_SHOWED": "Проверить статус",
+    "AUTHORIZED": "Подтвердить",
+    "CONFIRMED": "Вернуть",
+    "REFUNDED": "Отменено"
+}
+const FUNC = {
+    "NEW": getStatusPay,
+    "FORM_SHOWED": getStatusPay,
+    "AUTHORIZED": confirmPay,
+    "CONFIRMED": refundPay
+}
+
+async function tinkoffPay(form){
+    event.preventDefault();
+
+    let promise = await fetch("/order/create", {
+        "method": "POST",
+        "headers": { 'Content-Type': 'application/json;charset=utf-8' },
+        "body": JSON.stringify({
+            "email": form.email.value,
+            "amount": form.amount.value
+        }),
+    });
+    response = await promise.json();
+    if (!response.Success)
+        alert(response.Message + response.Details)
+    else
+        document.location.href=response.PaymentURL;
+    return false;
+}
+
+window.onload = function (){
+    let promise = fetch("/order")
+        .then((res) => res.json())
+        .then((res) => build(res));
+}
+
+function build(dataset){
+    let order = document.querySelector(".order");
+    dataset.forEach(elem => {
+        let node = order.cloneNode(true);
+        node.querySelector("[name=number]").innerText = elem.order_name;
+        node.querySelector("[name=email]").innerText = elem.email;
+        node.querySelector("[name=created]").innerText = elem.created_at;
+        node.querySelector("[name=updated]").innerText = elem.updated_at;
+        node.querySelector("[name=status]").innerText = elem.status;
+        node.querySelector("[name=url]").innerText = elem.payment_url;
+        order.parentNode.appendChild(node);
+        let status_i = STATUS.indexOf(elem.status);
+        let action =  node.querySelector("[name=action]")
+        if (status_i < STATUS.length){
+            action.innerText = NAMES[STATUS[status_i]];
+            action.addEventListener('click', FUNC[STATUS[status_i]]);
+        } 
+    })
+}
+
+function change(number, res){
+    console.log(res);
+    if (!res["Success"] || !res["Status"]) {
+        console.log(res["Message"]);
+        alert(res["Message"]);
+        return ;
+    }
+    res = res["Status"];
+    let order = number.parentNode;
+    if (order.querySelector("[name=status]").innerText == res)
+        return ;
+    order.querySelector("[name=status]").innerText = res;
+    let status_n = order.querySelector("[name=status]");
+    let status_i = STATUS.indexOf(status_n.innerText);
+    let action =  order.querySelector("[name=action]")
+    action.removeEventListener('click', FUNC[status_n.innerText]);
+    if (status_i < STATUS.length - 1){
+        status_i += 1;
+        action.innerText = NAMES[STATUS[status_i]];
+        action.addEventListener('click', FUNC[STATUS[status_i]]);
+    } 
+}
+
+function getStatusPay(){
+    let number = this.parentNode.querySelector("[name=number]");
+    let promise = fetch(`/order/getState/?number=${number.innerText}`)
+        .then((res) => res.json())
+        .then((res) => change(number, res));   
+}
+
+function confirmPay(){
+    let number = this.parentNode.querySelector("[name=number]");
+    let promise = fetch(`/order/confirm/?number=${number.innerText}`)
+        .then((res) => res.json())
+        .then((res) => change(number, res));   
+}
+function refundPay(){
+    let number = this.parentNode.querySelector("[name=number]");
+    let promise = fetch(`/order/refund/?number=${number.innerText}`)
+        .then((res) => res.json())
+        .then((res) => change(number, res));   
+}
+</script>
+
+</body>
+</html>

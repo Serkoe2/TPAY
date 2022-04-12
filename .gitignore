@@ -1,0 +1,12 @@
+# VS Code files
+__pycache__
+
+# Mac OS
+.DS_Store
+
+# Self files
+TODO
+postgresdata
+
+# Env
+env
