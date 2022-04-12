@@ -9,6 +9,8 @@ if not DB_URL:
     DB_HOST = "localhost"
     DB_NAME = "postgres"
     DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
+else:
+    DB_URL.replace('postgres://', 'postgresql://')
 
 # Use separate DB for tests
 SQLALCHEMY_DATABASE_URL = DB_URL

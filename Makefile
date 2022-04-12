@@ -19,8 +19,6 @@ install:
 	alembic upgrade head
 
 heroku_install:
-	heroku run rm -rf migrations
-	heroku run alembic init migrations
 	heroku run  alembic revision --autogenerate -m "Added required tables"
 	heroku run  alembic upgrade head
 
