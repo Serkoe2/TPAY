@@ -25,12 +25,9 @@ from app.models import orders
 # к переменным из файла alembic.ini
 config = context.config
 
-section = config.config_ini_section
-config.set_section_option(section, "DB_USER", "starter_kit")
-config.set_section_option(section, "DB_PASS", "qwerty")
-config.set_section_option(section, "DB_NAME", "postgres")
-config.set_section_option(section, "DB_HOST", "localhost")
+from app.db_config import SQLALCHEMY_DATABASE_URL
 
+config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
 target_metadata = [orders.orders_table.metadata]
 
 # other values from the config, defined by the needs of env.py,
