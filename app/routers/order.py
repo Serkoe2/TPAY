@@ -18,7 +18,7 @@ async def create(order: OrderCreate):
     order_id, order_name = Order.newOrderId()
     data = {
         "OrderId": order_name,
-        "Amount": order.amount
+        "Amount": order.amount * 100
     }
     response = TinkoffApi.init(data)
     if not response:
