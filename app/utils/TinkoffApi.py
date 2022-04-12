@@ -1,11 +1,12 @@
 import requests
+import os
 from hashlib import sha256
 
 class TinkoffApi:
     url = "https://securepay.tinkoff.ru/v2/"
     TerminalKey = "TinkoffBankTest"
     TerminalPassword = "TinkoffBankTest"
-    NotificationURL = "https://test.com"
+    NotificationURL = os.getenviron("NOTIFY_URL") if os.getenviron("NOTIFY_URL") else "http://localhost"
 
     @classmethod
     def init(cls, data):
