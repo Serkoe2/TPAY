@@ -13,4 +13,15 @@ start_db:
 freeze:
 	pip freeze > requirements.txt 
 
-.PHONY: start start_db freeze
+install:
+	alembic init migrations
+	alembic revision --autogenerate -m "Added required tables"
+	alembic upgrade head
+
+heroku_install:
+	heroku run rm -rf migrations
+	heroku run alembic init migrations
+	heroku run  alembic revision --autogenerate -m "Added required tables"
+	heroku run  alembic upgrade head
+
+.PHONY: start start_db freeze install heroku_install
