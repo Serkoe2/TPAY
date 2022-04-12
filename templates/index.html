@@ -203,8 +203,7 @@ function change(number, res){
     let status_i = STATUS.indexOf(status_n.innerText);
     let action =  order.querySelector("[name=action]")
     action.removeEventListener('click', FUNC[status_n.innerText]);
-    if (status_i <= STATUS.length - 1){
-        status_i += 1;
+    if (status_i <= STATUS.length - 1){;
         action.innerText = NAMES[STATUS[status_i]];
         action.addEventListener('click', FUNC[STATUS[status_i]]);
     } 
